@@ -8,7 +8,7 @@ const accessTokenSlice = createSlice({
   name: "logged",
   initialState,
   reducers: {
-    setAccessTokenStore: (state, action: PayloadAction<accessTokenState>) => {
+    setAccessTokenStore: (_, action: PayloadAction<accessTokenState>) => {
       return action.payload;
     },
   },

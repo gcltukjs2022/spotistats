@@ -1,13 +1,8 @@
 import chartDark from "../assets/icons/chartDark.svg";
-import chartLight from "../assets/icons/chartLight.svg";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setDarkmode } from "../redux/features/darkmodeSlice";
-import { useNavigate, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Header: React.FC = () => {
-  const darkmodeStore = useAppSelector((state) => state.darkmode);
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 

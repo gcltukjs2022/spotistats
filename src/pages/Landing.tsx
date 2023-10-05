@@ -2,7 +2,7 @@ import { useAppSelector } from "../redux/hooks";
 import Login from "../components/Login";
 import Intro from "../components/Intro";
 import { useEffect, useState } from "react";
-import UserProfile from "../components/userProfile";
+import UserProfile from "../components/UserProfile";
 // import UserProfile from "../components/userProfile";
 // import { TopTracks } from "../components/topTracks";
 
