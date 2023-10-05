@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import getUserProfile from "../utils/getUserProfile";
-import { useNavigate } from "react-router-dom";
 
 export interface Profile {
   country: string;
@@ -16,7 +15,6 @@ export interface Profile {
 }
 
 const UserProfile: React.FC = () => {
-  const navigate = useNavigate();
   const [details, setDetails] = useState<Profile>();
   const imgUrl = `https://flagsapi.com/${details?.country}/flat/64.png`;
 
