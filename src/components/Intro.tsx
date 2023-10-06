@@ -10,12 +10,12 @@ const Intro = () => {
     {
       img: icons.arrows,
       title: "Compare to last visit",
-      text: "View your most listened tracks, artists and genres and switch between 3 different time periods. Your data is updated approximately every day.",
+      text: "See how your personal ranking changes over time, indicated by arrows compared to your last visit",
     },
     {
       img: icons.save,
       title: "Create playlist",
-      text: "View your most listened tracks, artists and genres and switch between 3 different time periods. Your data is updated approximately every day.",
+      text: "Create a playlist from your personal charts and listen to them directly in your spotify app",
     },
     {
       img: icons.replay,

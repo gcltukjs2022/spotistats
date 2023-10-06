@@ -1,10 +1,30 @@
 import chartDark from "../assets/icons/chartDark.svg";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { refreshAccessToken } from "../utils/auth";
+import { useAppDispatch } from "../redux/hooks";
+import { setLogin } from "../redux/features/loginSlice";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleRefresh = async () => {
+    try {
+      const res = await refreshAccessToken();
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleLogout = async () => {
+    sessionStorage.clear();
+    dispatch(setLogin(false));
+    setIsOpen(false);
+    navigate("/");
+  };
 
   return (
     <header className="sticky top-0 w-full">
@@ -41,28 +61,48 @@ const Header: React.FC = () => {
             onClick={() => navigate("/")}
           />
         </div>
-
-        <ul
+        <div
           className={`absolute z-99 top-full w-full min-h-screen pl-4 bg-white  transition-all duration-200 ease-in-out  ${
             isOpen ? "left-0" : "-left-[120%]"
           }`}
         >
-          <li className="py-4">
-            <a href="#">Top Tracks</a>
-          </li>
-          <li className="py-4">
-            <a href="#">Top Albums</a>
-          </li>
-          <li className="py-4">
-            <a href="#">Top Artists</a>
-          </li>
-          <li className="py-4">
-            <a href="#">Account</a>
-          </li>
-          <li className="py-4">
-            <a href="#">About</a>
-          </li>
-        </ul>
+          <ul
+            className="border-b-2"
+            // className={`absolute z-99 top-full w-full min-h-screen pl-4 bg-white  transition-all duration-200 ease-in-out  ${
+            //   isOpen ? "left-0" : "-left-[120%]"
+            // }`}
+          >
+            <li className="py-4">
+              <a href="#">Top Tracks</a>
+            </li>
+            <li className="py-4">
+              <a href="#">Top Albums</a>
+            </li>
+            <li className="py-4">
+              <a href="#">Top Artists</a>
+            </li>
+            <li className="py-4">
+              <a href="#">Account</a>
+            </li>
+            <li className="py-4">
+              <a href="#">About</a>
+            </li>
+          </ul>
+          <div className="flex pt-6 gap-6">
+            <button
+              className="bg-black  p-3 rounded-lg text-white text-xs"
+              onClick={handleRefresh}
+            >
+              Refresh Token
+            </button>
+            <button
+              className="bg-black  p-3 rounded-lg text-white text-xs"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          </div>
+        </div>
       </div>
     </header>
   );

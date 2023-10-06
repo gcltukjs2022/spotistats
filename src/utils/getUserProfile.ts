@@ -1,4 +1,5 @@
 import axios from "axios";
+import { refreshAccessToken } from "./auth";
 
 export default async function getUserProfile() {
   try {
@@ -11,8 +12,12 @@ export default async function getUserProfile() {
     });
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.log("GET USER PROFILE ERROR: ", error);
+
+    if (error.response.data.error.message === "The access token expired") {
+      await refreshAccessToken();
+    }
     return error;
   }
 }
