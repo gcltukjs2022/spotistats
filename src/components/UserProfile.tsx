@@ -20,19 +20,27 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const profile = await getUserProfile();
+      let accessToken = sessionStorage.getItem("access_token");
+      if (accessToken) {
+        const res = await getUserProfile(accessToken);
 
-      setDetails((prev) => ({
-        ...prev,
-        country: profile.country,
-        name: profile.display_name,
-        email: profile.email,
-        urls: profile.external_urls,
-        followers: profile.followers.total,
-        images: profile.images.url,
-        product: profile.product,
-        type: profile.type,
-      }));
+        if (res.status === 200) {
+          setDetails((prev) => ({
+            ...prev,
+            country: res?.data?.country,
+            name: res?.data?.display_name,
+            email: res?.data?.email,
+            urls: res?.data?.external_urls,
+            followers: res?.data?.followers.total,
+            images: res?.data?.images.url,
+            product: res?.data?.product,
+            type: res?.data?.type,
+          }));
+        } else {
+          console.log("here");
+          sessionStorage.clear();
+        }
+      }
     })();
   }, []);
 

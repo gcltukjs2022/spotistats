@@ -1,19 +1,43 @@
 import chartDark from "../assets/icons/chartDark.svg";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { refreshAccessToken } from "../utils/auth";
+import { refreshAccessToken, scheduleTokenRefresh } from "../utils/auth";
 import { useAppDispatch } from "../redux/hooks";
 import { setLogin } from "../redux/features/loginSlice";
 
-const Header: React.FC = () => {
+const Nav: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleRefresh = async () => {
     try {
-      const res = await refreshAccessToken();
-      console.log(res);
+      const refreshToken = sessionStorage.getItem("refresh_token");
+      if (refreshToken) {
+        const res = await refreshAccessToken(refreshToken);
+
+        console.log("REFRESH TOKEN RES: ", res);
+
+        if (res.status === 200) {
+          const newAccessToken = res?.data?.access_token;
+          const expiresIn = res?.data?.expires_in;
+          const newRefreshToken = res?.data?.refresh_token;
+
+          if (newAccessToken && expiresIn) {
+            // Calculate the new expiration timestamp and store it
+            const expirationTimestamp = Date.now() + expiresIn * 1000;
+            sessionStorage.setItem("access_token", newAccessToken);
+            sessionStorage.setItem(
+              "access_token_expires_at",
+              expirationTimestamp.toString(),
+            );
+            sessionStorage.setItem("refresh_token", newRefreshToken);
+
+            // Schedule the next token refresh
+            scheduleTokenRefresh(expiresIn - 300); // Refresh 5 minutes before expiration
+          }
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -108,4 +132,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default Nav;

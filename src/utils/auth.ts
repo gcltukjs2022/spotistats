@@ -59,45 +59,30 @@ export function scheduleTokenRefresh(secondsBeforeExpiration: number) {
   setTimeout(refreshAccessToken, secondsBeforeExpiration * 1000);
 }
 
-export async function refreshAccessToken() {
-  const refreshToken = sessionStorage.getItem("refresh_token");
+export async function refreshAccessToken(refreshToken: string) {
+  try {
+    // Perform the token refresh using the refresh token
+    const params = new URLSearchParams();
+    params.append("client_id", import.meta.env.VITE_CLIENT_ID);
+    params.append("grant_type", "refresh_token");
+    params.append("refresh_token", refreshToken);
 
-  if (refreshToken) {
-    try {
-      // Perform the token refresh using the refresh token
-      const params = new URLSearchParams();
-      params.append("client_id", import.meta.env.VITE_CLIENT_ID);
-      params.append("grant_type", "refresh_token");
-      params.append("refresh_token", refreshToken);
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      params,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      },
+    );
 
-      const response = await axios.post(
-        "https://accounts.spotify.com/api/token",
-        params,
-        {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        },
-      );
-
-      const newAccessToken = response?.data?.access_token;
-      const expiresIn = response?.data?.expires_in;
-      const newRefreshToken = response?.data?.refresh_token;
-
-      if (newAccessToken && expiresIn) {
-        // Calculate the new expiration timestamp and store it
-        const expirationTimestamp = Date.now() + expiresIn * 1000;
-        sessionStorage.setItem("access_token", newAccessToken);
-        sessionStorage.setItem(
-          "access_token_expires_at",
-          expirationTimestamp.toString(),
-        );
-        sessionStorage.setItem("refresh_token", newRefreshToken);
-
-        // Schedule the next token refresh
-        scheduleTokenRefresh(expiresIn - 300); // Refresh 5 minutes before expiration
-      }
-    } catch (error) {
-      console.log("REFRESH TOKEN ERROR: ", error);
-      // Handle token refresh error; the user may need to reauthenticate
+    return response;
+  } catch (error: any) {
+    console.log("REFRESH TOKEN ERROR: ", error);
+    // Handle token refresh error; the user may need to reauthenticate
+    if (error.response.data.error === "invalid_grant") {
+      sessionStorage.clear();
+      return error;
     }
+    return error;
   }
 }

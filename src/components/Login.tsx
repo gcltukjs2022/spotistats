@@ -18,9 +18,10 @@ const Login = () => {
     const token = sessionStorage.getItem("access_token");
 
     if (!token && code && codeVerifier) {
+      console.log("trigger get token");
       getToken(code, codeVerifier);
     }
-  }, [loginState]);
+  }, []);
 
   const handleLogin = async () => {
     requestUserAuthorization();
@@ -42,19 +43,15 @@ const Login = () => {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         },
       );
-      // sessionStorage.setItem("access_token", response?.data?.access_token);
-      // sessionStorage.setItem(
-      //   "access_token_expires_at",
-      //   (Date.now() + response?.data.expires_in * 1000).toString(),
-      // );
-      // sessionStorage.setItem("refresh_token", response?.data?.refresh_token);
-      // dispatch(setLogin(true));
+
+      console.log("got response");
 
       const accessToken = response?.data?.access_token;
       const expiresIn = response?.data?.expires_in;
       const refreshToken = response?.data?.refresh_token;
 
       if (accessToken && expiresIn && refreshToken) {
+        console.log("got token");
         // Calculate the expiration timestamp and store it
         const expirationTimestamp = Date.now() + expiresIn * 1000;
         sessionStorage.setItem("access_token", accessToken);
@@ -69,6 +66,7 @@ const Login = () => {
         // Schedule a token refresh before it expires (e.g., a few minutes before)
         scheduleTokenRefresh(expiresIn - 300); // Refresh 5 minutes before expiration
       }
+      console.log("before navigate");
 
       navigate("/");
     } catch (error) {
