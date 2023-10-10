@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export function generateRandomString(length: number) {
   let text = "";
   let possible =
@@ -39,7 +41,7 @@ export async function requestUserAuthorization() {
 
   sessionStorage.setItem("code_verifier", codeVerifier);
 
-  let args = new URLSearchParams({
+  let params = new URLSearchParams({
     response_type: "code",
     client_id: clientId,
     scope: scope,
@@ -49,6 +51,38 @@ export async function requestUserAuthorization() {
     code_challenge: codeChallenge,
   });
 
-  const authorizationUrl = "https://accounts.spotify.com/authorize?" + args;
+  const authorizationUrl = "https://accounts.spotify.com/authorize?" + params;
   window.location.href = authorizationUrl;
+}
+
+export function scheduleTokenRefresh(secondsBeforeExpiration: number) {
+  setTimeout(refreshAccessToken, secondsBeforeExpiration * 1000);
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+  try {
+    // Perform the token refresh using the refresh token
+    const params = new URLSearchParams();
+    params.append("client_id", import.meta.env.VITE_CLIENT_ID);
+    params.append("grant_type", "refresh_token");
+    params.append("refresh_token", refreshToken);
+
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      params,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      },
+    );
+
+    return response;
+  } catch (error: any) {
+    console.log("REFRESH TOKEN ERROR: ", error);
+    // Handle token refresh error; the user may need to reauthenticate
+    if (error.response.data.error === "invalid_grant") {
+      sessionStorage.clear();
+      return error;
+    }
+    return error;
+  }
 }
