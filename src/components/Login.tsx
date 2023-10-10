@@ -18,9 +18,10 @@ const Login = () => {
     const token = sessionStorage.getItem("access_token");
 
     if (!token && code && codeVerifier) {
+      console.log("trigger get token");
       getToken(code, codeVerifier);
     }
-  }, [loginState]);
+  }, []);
 
   const handleLogin = async () => {
     requestUserAuthorization();
@@ -28,7 +29,6 @@ const Login = () => {
 
   const getToken = async (code: string, codeVerifier: string) => {
     try {
-      console.log("here1");
       const params = new URLSearchParams();
       params.append("client_id", import.meta.env.VITE_CLIENT_ID);
       params.append("grant_type", "authorization_code");
@@ -43,9 +43,30 @@ const Login = () => {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         },
       );
-      sessionStorage.setItem("access_token", response.data.access_token);
 
-      dispatch(setLogin(true));
+      console.log("got response");
+
+      const accessToken = response?.data?.access_token;
+      const expiresIn = response?.data?.expires_in;
+      const refreshToken = response?.data?.refresh_token;
+
+      if (accessToken && expiresIn && refreshToken) {
+        console.log("got token");
+        // Calculate the expiration timestamp and store it
+        const expirationTimestamp = Date.now() + expiresIn * 1000;
+        sessionStorage.setItem("access_token", accessToken);
+        sessionStorage.setItem(
+          "access_token_expires_at",
+          expirationTimestamp.toString(),
+        );
+        sessionStorage.setItem("refresh_token", refreshToken);
+
+        dispatch(setLogin(true));
+
+        // Schedule a token refresh before it expires (e.g., a few minutes before)
+        scheduleTokenRefresh(expiresIn - 300); // Refresh 5 minutes before expiration
+      }
+      console.log("before navigate");
 
       navigate("/");
     } catch (error) {
@@ -53,13 +74,50 @@ const Login = () => {
     }
   };
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     sessionStorage.clear();
-  //     localStorage.clear();
-  //     dispatch(setLogin(false));
-  //   }, 3_600_000);
-  // }, [accessTokenStorage, code]);
+  const scheduleTokenRefresh = (secondsBeforeExpiration: number) => {
+    setTimeout(refreshAccessToken, secondsBeforeExpiration * 1000);
+  };
+
+  const refreshAccessToken = async () => {
+    const refreshToken = sessionStorage.getItem("refresh_token");
+
+    if (refreshToken) {
+      try {
+        // Perform the token refresh using the refresh token
+        const params = new URLSearchParams();
+        params.append("client_id", import.meta.env.VITE_CLIENT_ID);
+        params.append("grant_type", "refresh_token");
+        params.append("refresh_token", refreshToken);
+
+        const response = await axios.post(
+          "https://accounts.spotify.com/api/token",
+          params,
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          },
+        );
+
+        const newAccessToken = response?.data?.access_token;
+        const expiresIn = response?.data?.expires_in;
+
+        if (newAccessToken && expiresIn) {
+          // Calculate the new expiration timestamp and store it
+          const expirationTimestamp = Date.now() + expiresIn * 1000;
+          sessionStorage.setItem("access_token", newAccessToken);
+          sessionStorage.setItem(
+            "access_token_expires_at",
+            expirationTimestamp.toString(),
+          );
+
+          // Schedule the next token refresh
+          scheduleTokenRefresh(expiresIn - 300); // Refresh 5 minutes before expiration
+        }
+      } catch (error) {
+        console.log("REFRESH TOKEN ERROR: ", error);
+        // Handle token refresh error; the user may need to reauthenticate
+      }
+    }
+  };
 
   return (
     <div className="p-3  bg-gray-100 pt-[100]">
