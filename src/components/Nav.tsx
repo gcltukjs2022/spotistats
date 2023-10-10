@@ -45,7 +45,6 @@ const Nav: React.FC = () => {
 
   const handleLogout = async () => {
     sessionStorage.clear();
-    dispatch(setLogin(false));
     setIsOpen(false);
     navigate("/");
   };
@@ -82,7 +81,10 @@ const Nav: React.FC = () => {
             src={chartDark}
             alt="logo"
             className="w-8"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              navigate("/");
+              setIsOpen(false);
+            }}
           />
         </div>
         <div
@@ -90,14 +92,17 @@ const Nav: React.FC = () => {
             isOpen ? "left-0" : "-left-[120%]"
           }`}
         >
-          <ul
-            className="border-b-2"
-            // className={`absolute z-99 top-full w-full min-h-screen pl-4 bg-white  transition-all duration-200 ease-in-out  ${
-            //   isOpen ? "left-0" : "-left-[120%]"
-            // }`}
-          >
+          <ul className="border-b-2">
             <li className="py-4">
-              <a href="#">Top Tracks</a>
+              <a
+                href="/top-tracks"
+                onClick={() => {
+                  // navigate("/top-tracks");
+                  // setIsOpen(false);
+                }}
+              >
+                Top Tracks
+              </a>
             </li>
             <li className="py-4">
               <a href="#">Top Albums</a>
@@ -113,12 +118,12 @@ const Nav: React.FC = () => {
             </li>
           </ul>
           <div className="flex pt-6 gap-6">
-            <button
+            {/* <button
               className="bg-black  p-3 rounded-lg text-white text-xs"
               onClick={handleRefresh}
             >
               Refresh Token
-            </button>
+            </button> */}
             <button
               className="bg-black  p-3 rounded-lg text-white text-xs"
               onClick={handleLogout}

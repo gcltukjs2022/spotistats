@@ -1,14 +1,16 @@
 import { useEffect } from "react";
 import "./App.css";
-import AppRouter from "./appRouter";
+
 import getUserProfile from "./utils/getUserProfile";
+import { useAppSelector } from "./redux/hooks";
+import AppRouter from "./AppRouter";
 
 function App() {
-  // useEffect(() => {
-  //   (async () => {
-  //     const profile = await getUserProfile();
-  //   })();
-  // }, []);
+  const loginState = useAppSelector((state) => state.login);
+
+  useEffect(() => {
+    console.log(loginState);
+  }, [loginState]);
 
   return <AppRouter />;
 }

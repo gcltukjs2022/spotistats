@@ -24,7 +24,7 @@ const Intro = () => {
     },
   ];
   return (
-    <div className="p-3 pb-24 flex flex-col gap-y-6">
+    <div className="p-3 pb-12 flex flex-col gap-y-6">
       {items.map((item, i) => {
         return (
           <div

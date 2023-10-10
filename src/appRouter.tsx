@@ -2,13 +2,8 @@ import { Routes, Route, BrowserRouter as Router } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Header from "./components/Nav";
 import Footer from "./components/Footer";
-
-// import UserProfile from "./components/userProfile";
-// import Header from "./components/header";
-// import { TopTracks } from "./components/topTracks";
-// import Login from "./components/OldLogin";
-// import Footer from "./components/footer";
-// import Landing from "./pages/Landing";
+import TopTracks from "./pages/TopTracks";
+import TopArtists from "./pages/TopArtists";
 
 const AppRouter = () => {
   return (
@@ -20,22 +15,14 @@ const AppRouter = () => {
             path="/"
             element={<Landing />}
           />
-          {/* <Route
-            path="/"
-            element={<Login />}
-          />
-          <Route
-            path="/callback"
-            element={<Login />}
-          />
           <Route
             path="/top-tracks"
             element={<TopTracks />}
           />
           <Route
-            path="/profile"
-            element={<UserProfile />}
-          /> */}
+            path="/top-artists"
+            element={<TopArtists />}
+          />
         </Routes>
         <Footer />
       </div>
